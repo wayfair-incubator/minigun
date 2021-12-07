@@ -1,6 +1,6 @@
 # Minigun
 
-[![Minigun Version](https://img.shields.io/badge/OSS%20Template-0.3.6-7f187f.svg)](https://github.com/wayfair-incubator/minigun/blob/main/CHANGELOG.md)
+[![Minigun Version](https://img.shields.io/badge/Minigun-0.3.6-7f187f.svg)](https://github.com/wayfair-incubator/minigun/blob/main/CHANGELOG.md)
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.0-4baaaa.svg)](CODE_OF_CONDUCT.md)
 
 ## About The Project
@@ -155,6 +155,16 @@ Please note that this dashboard was designed for a multi-cluster environment in 
 every cluster has a unique `cluster_name` label on every metric, which is implemented
 via Prometheus `global.external_labels` [config option](https://prometheus.io/docs/prometheus/latest/configuration/configuration/).
 
+## Understanding report
+
+You can read detailed explanation of reported metrics by using CLI help:
+
+```
+minigun -report-help
+```
+
+Or by checking the [following documentation page](./docs/report-help.md)
+
 ## Local Development
 
 ### Prerequisites
@@ -184,13 +194,13 @@ you need to do this:
 1.  Put this app  directory to your `$GOPATH` (if env is not set you can check with `go env`):
 
     ```
-    cp -a ./  ~/go/src/github.com/wayfair/minigun
+    cp -a ./  ~/go/src/github.com/wayfair-incubator/minigun
     ```
 
 1.  Go to your working directory:
 
     ```
-    cd ~/go/src/github.com/wayfair/minigun
+    cd ~/go/src/github.com/wayfair-incubator/minigun
     ```
 
 1.  Edit files.

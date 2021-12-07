@@ -1,0 +1,19 @@
+#
+# docker-compose.yaml
+#
+# Docker compose.
+#
+# @authors Minigun Maintainers
+# @copyright 2020 Wayfair, LLC. -- All rights reserved.
+
+# Set the Docker Compose API version. Don't change this unless you know what
+# you're doing.
+version: '3'
+
+# Define the Docker Compose services that are available to build and run.
+services:
+  minigun:
+    image: wayfair/minigun
+    build:
+      dockerfile: Dockerfile
+      context: .

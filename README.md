@@ -1,75 +1,223 @@
-# OSPO Project Template
+# Minigun
 
-[![OSS Template Version](https://img.shields.io/badge/OSS%20Template-0.3.5-7f187f.svg)](https://github.com/wayfair-incubator/oss-template/blob/main/CHANGELOG.md)
+[![Minigun Version](https://img.shields.io/badge/OSS%20Template-0.3.6-7f187f.svg)](https://github.com/wayfair-incubator/minigun/blob/main/CHANGELOG.md)
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.0-4baaaa.svg)](CODE_OF_CONDUCT.md)
-
-## Before You Start
-
-As much as possible, we have tried to provide enough tooling to get you up and running quickly and with a minimum of effort. This includes sane defaults for documentation; templates for bug reports, feature requests, and pull requests; and [GitHub Actions](https://github.com/features/actions) that will automatically manage stale issues and pull requests. This latter defaults to labeling issues and pull requests as stale after 60 days of inactivity, and closing them after 7 additional days of inactivity. These [defaults](.github/workflows/stale.yml) and more can be configured. For configuration options, please consult the documentation for the [stale action](https://github.com/actions/stale).
-
-In trying to keep this template as generic and reusable as possible, there are some things that were omitted out of necessity and others that need a little tweaking. Before you begin developing in earnest, there are a few changes that need to be made.
-
-- [ ] Select an appropriate license for your project. This can easily be achieved through the 'Add File' button on the GitHub UI, naming the file `LICENSE`, and selecting your desired license from the provided list.
-- [ ] Update the `<License name>` placeholder in this file to reflect the name of the license you selected above
-- [ ] Replace `[INSERT CONTACT METHOD]` in [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md) with a suitable communication channel
-- [ ] Change references to `org_name` to the name of the org your repo belongs to (eg. `wayfair-incubator`)
-  - [ ] In [`README.md`](README.md)
-  - [ ] In [`CONTRIBUTING.md`](CONTRIBUTING.md)
-- [ ] Change references to `repo_name` to the name of your new repo
-  - [ ] In [`README.md`](README.md)
-  - [ ] In [`CONTRIBUTING.md`](CONTRIBUTING.md)
-- [ ] Update the link to the contribution guidelines to point to your project
-  - [ ] In [`.github/ISSUE_TEMPLATE/BUG_REPORT.md`](.github/ISSUE_TEMPLATE/BUG_REPORT.md)
-  - [ ] In [`.github/PULL_REQUEST_TEMPLATE.md`](.github/PULL_REQUEST_TEMPLATE.md)
-- [ ] Replace the `<project name>` placeholder with the name of your project
-  - [ ] In [`CONTRIBUTING.md`](CONTRIBUTING.md)
-  - [ ] In [`SECURITY.md`](SECURITY.md)
-- [ ] Add names and contact information for actual project maintainers to [`MAINTAINERS.md`](MAINTAINERS.md)
-- [ ] Delete the content of [`CHANGELOG.md`](CHANGELOG.md). We encourgage you to [keep a changelog](https://keepachangelog.com/en/1.0.0/).
-- [ ] Replace the generic content in this file with the relevant details about your project
-- [ ] Delete this section of the README
 
 ## About The Project
 
-Provide some information about what the project is/does.
+Minigun is a highly performant Kubernetes native HTTP benchmark tool written in Go.
+Besides providing a text or JSON report, it exposes metrics in Prometheus format,
+which could be scraped from the Minigun's `/metrics` endpoint or pushed to the
+Prometheus Push Gateway.
+
+It can be run as a CLI tool on any supported system to run a benchmark, as a Pod inside
+Kubernetes cluster to constantly provide performance metrics, or as a one time Job.
 
 ## Getting Started
 
-To get a local copy up and running follow these simple steps.
+1.  Download a tarball from the [releases](https://github.com/wayfair-incubator/minigun/releases) page.
+1.  Unpack it, example for Linux binary: `tar xzf minigun-linux64.tgz`
+1.  Run it: `./minigun -h`
+
+
+## Usage
+
+### Simple examples
+
+Running a test with 50 reqs/sec rate for 30 seconds and sending 5Kb body via `POST`:
+
+```
+minigun \
+  -fire-target http://kube-echo-perf-test.test.cluster.local/echo/2 \
+  -send-method POST -random-body-size 5Kb \
+  -fire-rate 50 -workers 20 -fire-duration 30s
+```
+
+Result:
+
+```
+Starting benchmark
+Benchmark is running.
+Benchmark is complete.
+
+Target:                              http://kube-echo-perf-test.test.cluster.local/echo/2
+Method:                              POST
+Duration:                            30.00 seconds
+Max concurrency:                     20
+Request body size:                   5.0 kB
+
+Completed requests:                  1517
+Succeeded requests:                  1517
+Failed requests:                     0
+Requests per second:                 50.57 (mean, across all concurrent requests)
+Request duration                     19.78ms (mean, across all concurrent requests)
+Transfer rate (HTTP Message Body)    319 kB/s sent (mean)
+                                     253 kB/s sent (mean, across all concurrent requests)
+                                     637 kB/s received (mean)
+                                     506 kB/s received (mean, across all concurrent requests)
+DNS queries                          20
+TCP connections                      20
+HTTP status codes                    [200:1517]
+
+                           MEAN       MEDIAN      P90        P95        P99
+Full request duration      15.69ms    15.74ms     16.70ms    16.86ms    31.42ms
+DNS request duration       3.46ms     742.81µs    17.48ms    19.31ms    19.39ms
+TCP connection duration    14.28ms    14.30ms     15.10ms    15.30ms    15.86ms
+HTTP write request body    41.12µs    39.05µs     50.61µs    56.17µs    76.90µs
+HTTP time to first byte    15.61ms    15.65ms     16.63ms    16.78ms    31.36ms
+HTTP response duration     15.34ms    15.59ms     16.56ms    16.70ms    17.34ms
+```
+
+Running a test via HTTPS with custom `Host` header and interrupting it in the middle:
+
+```
+minigun \
+  -insecure -fire-target https://10.10.10.10/echo/2 \
+  -http-header Host:kube-echo-perf-test.test.cluster.local \
+  -send-method POST -random-body-size 5Kb \
+  -fire-rate 20 -workers 20 -fire-duration 30s
+```
+
+Result:
+
+```
+Starting benchmark
+Benchmark is running.
+^C
+Received signal: interrupt
+Benchmark is complete.
+
+Target:                              https://10.10.10.10/echo/2
+Method:                              POST
+Duration:                            10.96 seconds
+Max concurrency:                     20
+Request body size:                   5.0 kB
+
+Completed requests:                  222
+Succeeded requests:                  222
+Failed requests:                     0
+Requests per second:                 20.25 (mean, across all concurrent requests)
+Request duration                     49.37ms (mean, across all concurrent requests)
+Transfer rate (HTTP Message Body)    279 kB/s sent (mean)
+                                     101 kB/s sent (mean, across all concurrent requests)
+                                     558 kB/s received (mean)
+                                     202 kB/s received (mean, across all concurrent requests)
+TCP connections                      20
+TLS Handshakes                       20
+HTTP status codes                    [200:222]
+
+                           MEAN       MEDIAN     P90        P95        P99
+Full request duration      17.94ms    15.43ms    17.01ms    44.79ms    48.32ms
+TCP connection duration    13.86ms    13.94ms    14.82ms    15.04ms    15.11ms
+TLS handshake duration     16.04ms    15.99ms    17.01ms    17.16ms    21.86ms
+HTTP write request body    69.15µs    62.11µs    81.12µs    87.90µs    126.59µs
+HTTP time to first byte    17.85ms    15.35ms    16.92ms    44.71ms    48.23ms
+HTTP response duration     15.06ms    15.20ms    16.13ms    16.32ms    17.02ms
+```
+
+Since we're using IP address and `https://` scheme in this second example, please note
+that DNS metrics are no longer reported but instead we have new TLS related metrics.
+
+One more example for JSON report:
+
+```
+minigun \
+  -fire-target http://kube-echo-perf-test.test.cluster.local/ \
+  -fire-rate 50 -workers 20 -fire-duration 15s -report json | jq '.RequestsCompleted'
+
+759
+```
+
+### Pushing metrics to Prometheus Pushgateway
+
+In this example we're running Minigun on one of the Kubernettes nodes and we're pushing
+metrics to the Prometheus Pushgateway endpoint (ClusterIP Kubernetes service)
+
+```
+minigun \
+  -fire-target http://kube-echo-perf-test.test.cluster.local/echo/2 \
+  -fire-rate 20 -fire-duration 10m -insecure -workers 20 \
+  -disable-keep-alive -send-method POST -random-body-size 1Kb \
+  -push-gateway http://192.168.0.1:9091 -name ssl-test
+```
+
+Please note that you can add `-name YOUR_NAME_HERE` argument to set custom `name`
+label value for metrics exported to Prometheus. This could be useful to separate your
+test metrics from others.
+
+### Grafana Dashboard
+
+Chart examples from [Minigun Grafana dashboard](grafana/Minigun.json):
+![minigun grafana main](docs/images/minigun_main_grafana.png)
+![minigun grafana tcp and dns](docs/images/minigun_tcp_dns_grafana.png)
+
+Please note that this dashboard was designed for a multi-cluster environment in which
+every cluster has a unique `cluster_name` label on every metric, which is implemented
+via Prometheus `global.external_labels` [config option](https://prometheus.io/docs/prometheus/latest/configuration/configuration/).
+
+## Local Development
 
 ### Prerequisites
 
 This is an example of how to list things you need to use the software and how to install them.
 
-- npm
+- Docker for image build.
+- Golang 1.17 for local binary build.
 
-  ```sh
-  npm install npm@latest -g
-  ```
+### Building a Docker image
 
-### Installation
+```
+docker-compose build
+```
 
-1. Clone the repo
+or
 
-   ```sh
-   git clone https://github.com/org_name/repo_name.git
-   ```
+```
+docker build .
+```
 
-2. Install NPM packages
+### Building a local binary
 
-   ```sh
-   npm install
-   ```
+If you want to `go run` or build locally with your system Golang instead of docker,
+you need to do this:
 
-## Usage
+1.  Put this app  directory to your `$GOPATH` (if env is not set you can check with `go env`):
 
-Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
+    ```
+    cp -a ./  ~/go/src/github.com/wayfair/minigun
+    ```
 
-_For more examples, please refer to the [Documentation](https://example.com) or the [Wiki](https://github.com/org_name/repo_name/wiki)_
+1.  Go to your working directory:
+
+    ```
+    cd ~/go/src/github.com/wayfair/minigun
+    ```
+
+1.  Edit files.
+
+1.  Create vendor to speed up re-builds (it will be also used if you build in Docker):
+
+    ```
+    make get-deps
+    ```
+
+1.  Build binary for your local OS:
+
+    ```
+    make local-build
+    ```
+
+1.  Run it:
+
+    ```
+    ./minigun -h
+    ```
+
+
 
 ## Roadmap
 
-See the [open issues](https://github.com/org_name/repo_name/issues) for a list of proposed features (and known issues).
+See the [open issues](https://github.com/wayfair-incubator/minigun/issues) for a list of proposed features (and known issues).
 
 ## Contributing
 
@@ -77,13 +225,13 @@ Contributions are what make the open source community such an amazing place to l
 
 ## License
 
-Distributed under the `<License name>` License. See `LICENSE` for more information.
+Distributed under the `MIT` License. See `LICENSE` for more information.
 
 ## Contact
 
-Your Name - [@twitter_handle](https://twitter.com/twitter_handle) - email
+Alexander Didenko - [@adidenko](https://github.com/adidenko) - email
 
-Project Link: [https://github.com/org_name/repo_name](https://github.com/org_name/repo_name)
+Project Link: [https://github.com/wayfair-incubator/minigun](https://github.com/wayfair-incubator/minigun)
 
 ## Acknowledgements
 

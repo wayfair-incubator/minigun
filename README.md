@@ -15,10 +15,9 @@ Kubernetes cluster to constantly provide performance metrics, or as a one time J
 
 ## Getting Started
 
-1.  Download a tarball from the [releases](https://github.com/wayfair-incubator/minigun/releases) page.
-1.  Unpack it, example for Linux binary: `tar xzf minigun-linux64.tgz`
-1.  Run it: `./minigun -h`
-
+1. Download a tarball from the [releases](https://github.com/wayfair-incubator/minigun/releases) page.
+1. Unpack it, example for Linux binary: `tar xzf minigun-linux64.tgz`
+1. Run it: `./minigun -h`
 
 ## Usage
 
@@ -26,7 +25,7 @@ Kubernetes cluster to constantly provide performance metrics, or as a one time J
 
 Running a test with 50 reqs/sec rate for 30 seconds and sending 5Kb body via `POST`:
 
-```
+```sh
 minigun \
   -fire-target http://kube-echo-perf-test.test.cluster.local/echo/2 \
   -send-method POST -random-body-size 5Kb \
@@ -35,7 +34,7 @@ minigun \
 
 Result:
 
-```
+```plain text
 Starting benchmark
 Benchmark is running.
 Benchmark is complete.
@@ -70,7 +69,7 @@ HTTP response duration     15.34ms    15.59ms     16.56ms    16.70ms    17.34ms
 
 Running a test via HTTPS with custom `Host` header and interrupting it in the middle:
 
-```
+```sh
 minigun \
   -insecure -fire-target https://10.10.10.10/echo/2 \
   -http-header Host:kube-echo-perf-test.test.cluster.local \
@@ -80,7 +79,7 @@ minigun \
 
 Result:
 
-```
+```plain text
 Starting benchmark
 Benchmark is running.
 ^C
@@ -120,7 +119,7 @@ that DNS metrics are no longer reported but instead we have new TLS related metr
 
 One more example for JSON report:
 
-```
+```sh
 minigun \
   -fire-target http://kube-echo-perf-test.test.cluster.local/ \
   -fire-rate 50 -workers 20 -fire-duration 15s -report json | jq '.RequestsCompleted'
@@ -133,7 +132,7 @@ minigun \
 In this example we're running Minigun on one of the Kubernettes nodes and we're pushing
 metrics to the Prometheus Pushgateway endpoint (ClusterIP Kubernetes service)
 
-```
+```sh
 minigun \
   -fire-target http://kube-echo-perf-test.test.cluster.local/echo/2 \
   -fire-rate 20 -fire-duration 10m -insecure -workers 20 \
@@ -159,7 +158,7 @@ via Prometheus `global.external_labels` [config option](https://prometheus.io/do
 
 You can read detailed explanation of reported metrics by using CLI help:
 
-```
+```sh
 minigun -report-help
 ```
 
@@ -176,13 +175,13 @@ This is an example of how to list things you need to use the software and how to
 
 ### Building a Docker image
 
-```
+```sh
 docker-compose build
 ```
 
 or
 
-```
+```sh
 docker build .
 ```
 
@@ -191,39 +190,37 @@ docker build .
 If you want to `go run` or build locally with your system Golang instead of docker,
 you need to do this:
 
-1.  Put this app  directory to your `$GOPATH` (if env is not set you can check with `go env`):
+1. Put this app  directory to your `$GOPATH` (if env is not set you can check with `go env`):
 
-    ```
-    cp -a ./  ~/go/src/github.com/wayfair-incubator/minigun
-    ```
+   ```sh
+   cp -a ./  ~/go/src/github.com/wayfair-incubator/minigun
+   ```
 
-1.  Go to your working directory:
+1. Go to your working directory:
 
-    ```
-    cd ~/go/src/github.com/wayfair-incubator/minigun
-    ```
+   ```sh
+   cd ~/go/src/github.com/wayfair-incubator/minigun
+   ```
 
-1.  Edit files.
+1. Edit files.
 
-1.  Create vendor to speed up re-builds (it will be also used if you build in Docker):
+1. Create vendor to speed up re-builds (it will be also used if you build in Docker):
 
-    ```
-    make get-deps
-    ```
+   ```sh
+   make get-deps
+   ```
 
-1.  Build binary for your local OS:
+1. Build binary for your local OS:
 
-    ```
-    make local-build
-    ```
+   ```sh
+   make local-build
+   ```
 
-1.  Run it:
+1. Run it:
 
-    ```
-    ./minigun -h
-    ```
-
-
+   ```sh
+   ./minigun -h
+   ```
 
 ## Roadmap
 
@@ -239,7 +236,7 @@ Distributed under the `MIT` License. See `LICENSE` for more information.
 
 ## Contact
 
-Alexander Didenko - [@adidenko](https://github.com/adidenko) - email
+Alexander Didenko - [@adidenko](https://github.com/adidenko)
 
 Project Link: [https://github.com/wayfair-incubator/minigun](https://github.com/wayfair-incubator/minigun)
 

@@ -4,7 +4,7 @@ Here's an example of Minigun report and some explanations for the metrics it sho
 
 Command:
 
-```
+```sh
 minigun -fire-target http://kube-echo-perf-test.test.cluster.local/echo/1 \
   -random-body-size 1KB \
   -fire-rate 10 \
@@ -14,7 +14,7 @@ minigun -fire-target http://kube-echo-perf-test.test.cluster.local/echo/1 \
 
 Result:
 
-```
+```plain text
 Starting benchmark
 Benchmark is running.
 Benchmark is complete.
@@ -56,19 +56,19 @@ of per worker metrics**.
 
 So in the example above we're running 5 workers with desired request rate 10 reqs/s:
 
--   `Full request duration 1.81ms (MEAN)` - every worker calculates exact time it takes
-    to process the HTTP request. And this is the average of all the workers' metrics.
--   `Request duration 100.17ms (mean, across all concurrent requests)` - we're running
-    10 requests per second from 5 workers, and since every worker can complete this request
-    in `~1.81ms`, then we're not constrained by the app performance and can do 10 reqs/s
-    exactly. Simple math shows that expected request time is `1 second / 10 requests`
-    which is `1000 ms / 10 = 100 ms`. Which is almost exactly what we get here (`100.17ms`).
+- `Full request duration 1.81ms (MEAN)` - every worker calculates exact time it takes
+  to process the HTTP request. And this is the average of all the workers' metrics.
+- `Request duration 100.17ms (mean, across all concurrent requests)` - we're running
+  10 requests per second from 5 workers, and since every worker can complete this request
+  in `~1.81ms`, then we're not constrained by the app performance and can do 10 reqs/s
+  exactly. Simple math shows that expected request time is `1 second / 10 requests`
+  which is `1000 ms / 10 = 100 ms`. Which is almost exactly what we get here (`100.17ms`).
 
 Let's also take a look at `Transfer rate (HTTP Message Body)`:
 
--   `552 kB/s sent (mean)` - every worker calculates number of bytes of HTTP body it sends
-    and exact time required to send them. So this metric shows average `Bytes / second` for
-    all workers.
--   `10 kB/s sent (mean, across all concurrent requests)` - this is average across all workers
-    and for the benchmark duration. We're sending `1.0 kB` request body at `10 reqs/s` rate
-    which is in total `10 kB/s` across all concurrent requests during benchmark duration.
+- `552 kB/s sent (mean)` - every worker calculates number of bytes of HTTP body it sends
+  and exact time required to send them. So this metric shows average `Bytes / second` for
+  all workers.
+- `10 kB/s sent (mean, across all concurrent requests)` - this is average across all workers
+  and for the benchmark duration. We're sending `1.0 kB` request body at `10 reqs/s` rate
+  which is in total `10 kB/s` across all concurrent requests during benchmark duration.

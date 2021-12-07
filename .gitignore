@@ -1,0 +1,6 @@
+# Ignore vendor to reduce repo size
+vendor
+
+# Ignore binary and release tarballs
+minigun
+*.tgz

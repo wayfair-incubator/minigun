@@ -2296,7 +2296,7 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "avg(irate(minigun_httptrace_got_first_response_byte_duration_seconds_sum{cluster_name=\"$cluster_name\",namespace=~\"^$namespace$\",instance=~\"^$instance$\",name=~\"$name\"}[5m])) by (name) /\navg(irate(minigun_httptrace_got_first_response_byte_duration_seconds_count{cluster_name=\"$cluster_name\",namespace=~\"^$namespace$\",instance=~\"^$instance$\",name=~\"$name\"}[5m])) by (name)",
+          "expr": "avg(irate(minigun_httptrace_time_to_first_byte_seconds_sum{cluster_name=\"$cluster_name\",namespace=~\"^$namespace$\",instance=~\"^$instance$\",name=~\"$name\"}[5m])) by (name) /\navg(irate(minigun_httptrace_time_to_first_byte_seconds_count{cluster_name=\"$cluster_name\",namespace=~\"^$namespace$\",instance=~\"^$instance$\",name=~\"$name\"}[5m])) by (name)",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -2309,7 +2309,7 @@
         },
         {
           "exemplar": true,
-          "expr": "avg(minigun_httptrace_got_first_response_byte_duration_seconds{cluster_name=\"$cluster_name\",namespace=~\"^$namespace$\",instance=~\"^$instance$\",name=~\"$name\"}) by (name, quantile)",
+          "expr": "avg(minigun_httptrace_time_to_first_byte_seconds{cluster_name=\"$cluster_name\",namespace=~\"^$namespace$\",instance=~\"^$instance$\",name=~\"$name\"}) by (name, quantile)",
           "interval": "",
           "legendFormat": "{{quantile}}:",
           "refId": "B"

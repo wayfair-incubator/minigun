@@ -54,8 +54,8 @@ type appReport struct {
 	HTTPWriteRequestBodyDurationSecondsMean      float64            `json:"HTTPWriteRequestBodyDurationSecondsMean"`
 	HTTPWriteRequestBodyDurationSecondsQuantiles map[string]float64 `json:"HTTPWriteRequestBodyDurationSecondsQuantiles"`
 
-	HTTPGotFirstResponseByteDurationSecondsMean      float64            `json:"HTTPGotFirstResponseByteDurationSecondsMean"`
-	HTTPGotFirstResponseByteDurationSecondsQuantiles map[string]float64 `json:"HTTPGotFirstResponseByteDurationSecondsQuantiles"`
+	HTTPTimeToFirstByteSecondsMean      float64            `json:"HTTPTimeToFirstByteSecondsMean"`
+	HTTPTimeToFirstByteSecondsQuantiles map[string]float64 `json:"HTTPTimeToFirstByteSecondsQuantiles"`
 
 	HTTPResponseDurationSecondsMean      float64            `json:"HTTPResponseDurationSecondsMean"`
 	HTTPResponseDurationSecondsQuantiles map[string]float64 `json:"HTTPResponseDurationSecondsQuantiles"`
@@ -163,9 +163,9 @@ func collectReport(config appConfig, duration float64) appReport {
 			report.HTTPWriteRequestBodyDurationSecondsQuantiles = jsonizeFloatMap(quantiles)
 		}
 
-		if _, _, mean, quantiles, err := getSummaryValues(registry, "minigun_httptrace_got_first_response_byte_duration_seconds", config.metrics.labels); err == nil {
-			report.HTTPGotFirstResponseByteDurationSecondsMean = mean
-			report.HTTPGotFirstResponseByteDurationSecondsQuantiles = jsonizeFloatMap(quantiles)
+		if _, _, mean, quantiles, err := getSummaryValues(registry, "minigun_httptrace_time_to_first_byte_seconds", config.metrics.labels); err == nil {
+			report.HTTPTimeToFirstByteSecondsMean = mean
+			report.HTTPTimeToFirstByteSecondsQuantiles = jsonizeFloatMap(quantiles)
 		}
 	}
 
@@ -337,7 +337,7 @@ func reportTextOld(config appConfig, duration float64) string {
 	outLatencies = addSummaryToReport(outLatencies, "TCP connection duration", registry, "minigun_httptrace_connect_duration_seconds", config.metrics.labels)
 	outLatencies = addSummaryToReport(outLatencies, "TLS handshake duration", registry, "minigun_httptrace_tls_handshake_duration_seconds", config.metrics.labels)
 	outLatencies = addSummaryToReport(outLatencies, "HTTP write request body", registry, "minigun_httptrace_write_request_body_duration_seconds", config.metrics.labels)
-	outLatencies = addSummaryToReport(outLatencies, "HTTP time to first byte", registry, "minigun_httptrace_got_first_response_byte_duration_seconds", config.metrics.labels)
+	outLatencies = addSummaryToReport(outLatencies, "HTTP time to first byte", registry, "minigun_httptrace_time_to_first_byte_seconds", config.metrics.labels)
 	outLatencies = addSummaryToReport(outLatencies, "HTTP response duration", registry, "minigun_response_duration_seconds", config.metrics.labels)
 
 	// Add the second table to the report

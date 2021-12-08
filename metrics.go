@@ -135,8 +135,8 @@ func initMetrics(config appConfig, labelNames, labelValues []string) appMetrics 
 		prometheus.SummaryOpts{
 			Namespace:  "minigun",
 			Subsystem:  "httptrace",
-			Name:       "got_first_response_byte_duration_seconds",
-			Help:       "Summary distribution of GotFirstByte durations, in seconds",
+			Name:       "time_to_first_byte_seconds",
+			Help:       "Summary distribution of time to first byte durations, in seconds",
 			Objectives: summaryObjectives,
 		},
 		am.labelNames,

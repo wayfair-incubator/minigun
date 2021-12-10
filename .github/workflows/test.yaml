@@ -1,6 +1,10 @@
-name: Lint Markdown files
+name: Run Go tests
 
-on: ["push", "pull_request"]
+on:
+  pull_request:
+  push:
+    branches:
+      - main
 
 jobs:
   test:

@@ -37,6 +37,6 @@ release: $(VENDOR_DIR)
 	GOOS=linux CGO_ENABLED=0 go build -a -ldflags '-extldflags "-static"' -o minigun .
 	tar czf release/minigun-linux64.tgz minigun
 	rm -f minigun
-	GOOS=darwin CGO_ENABLED=1 go build -a -ldflags '-extldflags "-static"' -o minigun .
+	GOOS=darwin CGO_ENABLED=0 go build -a -ldflags '-extldflags "-static"' -o minigun .
 	tar czf release/minigun-darwin64.tgz minigun
 	rm -f minigun

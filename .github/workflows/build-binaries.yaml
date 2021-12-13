@@ -1,11 +1,9 @@
-name: Create release packages
+name: Build packages
 
-on:
-  release:
-    types: [published]
+on: [pull_request]
 
 jobs:
-  package:
+  build:
     strategy:
       matrix:
         go-version: [1.17]
@@ -25,15 +23,3 @@ jobs:
 
       - name: List files
         run: ls output/*
-
-      - name: Archive production artifacts
-        uses: actions/upload-artifact@v2
-        with:
-          name: packages
-          path: |
-            output/*
-
-      - uses: AButler/upload-release-assets@v2.0
-        with:
-          files: "output/*"
-          repo-token: ${{ secrets.GITHUB_TOKEN }}

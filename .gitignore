@@ -4,4 +4,4 @@ vendor
 # Ignore binary and release tarballs
 minigun
 *.tgz
-release/*
+output/*

@@ -21,5 +21,5 @@ RUN make build
 
 FROM gcr.io/distroless/base-debian11
 WORKDIR /
-COPY --from=build /go/src/github.com/wayfair-incubator/minigun/minigun /minigun
+COPY --from=build /go/src/github.com/wayfair-incubator/minigun/output/minigun /minigun
 ENTRYPOINT ["/minigun"]

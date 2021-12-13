@@ -15,9 +15,17 @@ Kubernetes cluster to constantly provide performance metrics, or as a one time J
 
 ## Getting Started
 
+Binary:
+
 1. Download a tarball from the [releases](https://github.com/wayfair-incubator/minigun/releases) page.
 1. Unpack it, example for Linux binary: `tar xzf minigun-linux64.tgz`
 1. Run it: `./minigun -h`
+
+Docker image:
+
+1. Check [available docker image tags](https://github.com/wayfair-incubator/minigun/pkgs/container/minigun/versions)
+1. Download the image: `docker pull ghcr.io/wayfair-incubator/minigun:latest`
+1. Run it: `docker run --rm ghcr.io/wayfair-incubator/minigun:latest -h`
 
 ## Usage
 

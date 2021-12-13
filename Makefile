@@ -26,7 +26,7 @@ local-build: $(VENDOR_DIR) $(OUTPUT_DIR)
 	CGO_ENABLED=1 go build -a -ldflags '-extldflags "-static"' -o output/minigun .
 
 .PHONY: local-build-wo-cgo
-local-build: $(VENDOR_DIR) $(OUTPUT_DIR)
+local-build-wo-cgo: $(VENDOR_DIR) $(OUTPUT_DIR)
 	CGO_ENABLED=0 go build -a -ldflags '-extldflags "-static"' -o output/minigun .
 
 .PHONY: clean

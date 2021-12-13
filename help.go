@@ -1,3 +1,8 @@
+// Simple HTTP benchmark tool
+//
+// @authors Minigun Maintainers
+// @copyright 2020 Wayfair, LLC -- All rights reserved.
+
 package main
 
 func helpReport() string {

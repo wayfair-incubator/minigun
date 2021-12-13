@@ -14,29 +14,46 @@ get-deps: $(VENDOR_DIR)
 $(VENDOR_DIR):
 	GO111MODULE=on go mod vendor
 
+$(OUTPUT_DIR):
+	mkdir output
+
 .PHONY: build
-build: $(VENDOR_DIR)
-	GOOS=linux CGO_ENABLED=0 go build -a -ldflags '-extldflags "-static"' -o minigun .
+build: $(VENDOR_DIR) $(OUTPUT_DIR)
+	GOOS=linux CGO_ENABLED=0 go build -a -ldflags '-extldflags "-static"' -o output/minigun .
 
 .PHONY: local-build
-local-build: $(VENDOR_DIR)
-	CGO_ENABLED=1 go build -a -ldflags '-extldflags "-static"' -o minigun .
+local-build: $(VENDOR_DIR) $(OUTPUT_DIR)
+	CGO_ENABLED=1 go build -a -ldflags '-extldflags "-static"' -o output/minigun .
+
+.PHONY: local-build-wo-cgo
+local-build: $(VENDOR_DIR) $(OUTPUT_DIR)
+	CGO_ENABLED=0 go build -a -ldflags '-extldflags "-static"' -o output/minigun .
 
 .PHONY: clean
 clean:
 	rm -f minigun
-	rm -f *.tgz
+	rm -f output/*
 
 .PHONY: test
 test: $(VENDOR_DIR)
 	go test -v -timeout 30s github.com/wayfair-incubator/minigun
 
-.PHONY: release
-release: $(VENDOR_DIR)
-	mkdir -p release
-	GOOS=linux CGO_ENABLED=0 go build -a -ldflags '-extldflags "-static"' -o minigun .
-	tar czf release/minigun-linux64.tgz minigun
-	rm -f minigun
-	GOOS=darwin CGO_ENABLED=0 go build -a -ldflags '-extldflags "-static"' -o minigun .
-	tar czf release/minigun-darwin64.tgz minigun
-	rm -f minigun
+# Some Github targets
+
+.PHONY: build-ubuntu-latest
+build-ubuntu-latest: $(VENDOR_DIR) $(OUTPUT_DIR)
+	CGO_ENABLED=1 go build -a -ldflags '-extldflags "-static"' -o output/minigun .
+	tar czf output/minigun-linux64.tar.gz output/minigun
+	rm -f output/minigun
+
+.PHONY: build-macos-latest
+build-macos-latest: $(VENDOR_DIR) $(OUTPUT_DIR)
+	CGO_ENABLED=1 go build -a -ldflags '-extldflags "-static"' -o output/minigun .
+	tar czf output/minigun-darwin64.tar.gz output/minigun
+	rm -f output/minigun
+
+.PHONY: build-windows-latest
+build-windows-latest: $(VENDOR_DIR) $(OUTPUT_DIR)
+	CGO_ENABLED=1 go build -a -ldflags '-extldflags "-static"' -o output/minigun.exe .
+	tar czf output/minigun-win64.tar.gz output/minigun.exe
+	rm -f output/minigun.exe

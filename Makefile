@@ -31,7 +31,6 @@ local-build: $(VENDOR_DIR) $(OUTPUT_DIR)
 
 .PHONY: clean
 clean:
-	rm -f minigun
 	rm -f output/*
 
 .PHONY: test
@@ -43,17 +42,17 @@ test: $(VENDOR_DIR)
 .PHONY: build-ubuntu-latest
 build-ubuntu-latest: $(VENDOR_DIR) $(OUTPUT_DIR)
 	CGO_ENABLED=1 go build -a -ldflags '-extldflags "-static"' -o output/minigun .
-	tar czf output/minigun-linux64.tar.gz output/minigun
+	cd output && tar czf minigun-linux64.tar.gz minigun
 	rm -f output/minigun
 
 .PHONY: build-macos-latest
 build-macos-latest: $(VENDOR_DIR) $(OUTPUT_DIR)
 	CGO_ENABLED=1 go build -a -ldflags '-extldflags "-static"' -o output/minigun .
-	tar czf output/minigun-darwin64.tar.gz output/minigun
+	cd output && tar czf minigun-darwin64.tar.gz minigun
 	rm -f output/minigun
 
 .PHONY: build-windows-latest
 build-windows-latest: $(VENDOR_DIR) $(OUTPUT_DIR)
 	CGO_ENABLED=1 go build -a -ldflags '-extldflags "-static"' -o output/minigun.exe .
-	tar czf output/minigun-win64.tar.gz output/minigun.exe
+	cd output && tar czf minigun-win64.tar.gz minigun.exe
 	rm -f output/minigun.exe

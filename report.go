@@ -30,7 +30,6 @@ type appReport struct {
 	RequestsFailed    float64 `json:"RequestsFailed"`
 
 	OverallRequestsRate           float64 `json:"OverallRequestsRate"`
-	OverallRequestTimeSeconds     float64 `json:"OverallRequestTimeSeconds"`
 	OverallSentBytesPerSecond     float64 `json:"OverallSentBytesPerSecond"`
 	OverallReceivedBytesPerSecond float64 `json:"OverallReceivedBytesPerSecond"`
 
@@ -99,9 +98,6 @@ func collectReport(config appConfig, duration float64) appReport {
 
 	if requests, err := getCounter(config.metrics.requestsSendCount, config.metrics.labelValues...); err == nil {
 		report.OverallRequestsRate = requests / duration
-
-		// Request time over all, cross all the concurency workers
-		report.OverallRequestTimeSeconds = duration / float64(requests)
 	}
 
 	// Time per request and transfer rates
@@ -272,9 +268,15 @@ func reportTextOld(config appConfig, duration float64) string {
 		rate := requests / duration
 		outMatrix = append(outMatrix, printRow{"Requests per second:", fmt.Sprintf("%.2f (mean, across all concurrent requests)", rate)})
 
-		// Request time over all, cross all the concurency workers
-		overallRequestTime := humanizeDurationSeconds(duration / float64(requests))
-		outMatrix = append(outMatrix, printRow{"Request duration", fmt.Sprintf("%v (mean, across all concurrent requests)", overallRequestTime)})
+		if config.abTimePerRequest {
+			// Mean request time
+			if _, _, mean, _, err := getSummaryValues(registry, "minigun_requests_duration_seconds", config.metrics.labels); err == nil {
+				outMatrix = append(outMatrix, printRow{"Time per request", fmt.Sprintf("%v (mean)", humanizeDurationSeconds(mean))})
+			}
+			// Request time over all, cross all the concurency workers
+			overallRequestTime := humanizeDurationSeconds(duration / float64(requests))
+			outMatrix = append(outMatrix, printRow{"Time per request", fmt.Sprintf("%v (mean, across all concurrent requests)", overallRequestTime)})
+		}
 	}
 
 	// Time per request and transfer rates

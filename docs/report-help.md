@@ -9,7 +9,8 @@ minigun -fire-target http://kube-echo-perf-test.test.cluster.local/echo/1 \
   -random-body-size 1KB \
   -fire-rate 10 \
   -workers 5 \
-  -fire-duration 1m
+  -fire-duration 1m \
+  -ab-time-per-request
 ```
 
 Result:
@@ -29,7 +30,8 @@ Completed requests:                  599
 Succeeded requests:                  599
 Failed requests:                     0
 Requests per second:                 9.98 (mean, across all concurrent requests)
-Request duration                     100.17ms (mean, across all concurrent requests)
+Time per request                     1.81ms (mean)
+Time per request                     100.17ms (mean, across all concurrent requests)
 Transfer rate (HTTP Message Body)    552 kB/s sent (mean)
                                      10 kB/s sent (mean, across all concurrent requests)
                                      552 kB/s received (mean)
@@ -56,9 +58,9 @@ of per worker metrics**.
 
 So in the example above we're running 5 workers with desired request rate 10 reqs/s:
 
-- `Full request duration 1.81ms (MEAN)` - every worker calculates exact time it takes
+- `Time per request 1.81ms (mean)` - every worker calculates exact time it takes
   to process the HTTP request. And this is the average of all the workers' metrics.
-- `Request duration 100.17ms (mean, across all concurrent requests)` - we're running
+- `Time per request 100.17ms (mean, across all concurrent requests)` - we're running
   10 requests per second from 5 workers, and since every worker can complete this request
   in `~1.81ms`, then we're not constrained by the app performance and can do 10 reqs/s
   exactly. Simple math shows that expected request time is `1 second / 10 requests`

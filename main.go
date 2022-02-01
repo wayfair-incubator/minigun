@@ -35,7 +35,7 @@ import (
 )
 
 // Constants and vars
-const version = "0.4.0"
+const version = "0.4.1"
 const workersCannelSize = 1024
 const errorBadHTTPCode = "Bad HTTP status code"
 
@@ -58,6 +58,8 @@ type appConfig struct {
 	insecure bool
 	instance string
 	name     string
+
+	abTimePerRequest bool
 
 	pushGateway  string
 	pushInterval time.Duration
@@ -634,6 +636,8 @@ func main() {
 
 	flag.StringVar(&config.report, "report", "text", "Report format. One of: 'text', 'table', 'json'")
 	flag.BoolVar(&config.prettyJson, "pretty-json", false, "Pretty print JSON report with indents")
+
+	flag.BoolVar(&config.abTimePerRequest, "ab-time-per-request", false, "Show Apache Benchmark style time per request metric")
 
 	flag.StringVar(&config.name, "name", "default", "Benchmark run name. It will be used as 'name' label for metrics. Can be used for grouping all instances.")
 	flag.StringVar(&config.instance, "instance", "", "Benchmark instance name. It will be used as 'instance' label for metrics. Default to hostname.")

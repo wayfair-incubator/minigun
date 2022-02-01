@@ -57,7 +57,6 @@ Completed requests:                  1517
 Succeeded requests:                  1517
 Failed requests:                     0
 Requests per second:                 50.57 (mean, across all concurrent requests)
-Request duration                     19.78ms (mean, across all concurrent requests)
 Transfer rate (HTTP Message Body)    319 kB/s sent (mean)
                                      253 kB/s sent (mean, across all concurrent requests)
                                      637 kB/s received (mean)
@@ -104,7 +103,6 @@ Completed requests:                  222
 Succeeded requests:                  222
 Failed requests:                     0
 Requests per second:                 20.25 (mean, across all concurrent requests)
-Request duration                     49.37ms (mean, across all concurrent requests)
 Transfer rate (HTTP Message Body)    279 kB/s sent (mean)
                                      101 kB/s sent (mean, across all concurrent requests)
                                      558 kB/s received (mean)
@@ -233,6 +231,16 @@ you need to do this:
 ## Roadmap
 
 See the [open issues](https://github.com/wayfair-incubator/minigun/issues) for a list of proposed features (and known issues).
+
+## Release Management
+
+- Push changes via Github Pull Requests, review and merge them.
+- Change the version constant in the `main.go` file.
+- Add all changes introduced since the last release to the `CHANGELOG.md` file.
+- When the new release is ready, [draft a new release](https://github.com/wayfair-incubator/minigun/releases/new):
+  - Make sure to specify a new tag, make sure to follow [SemVer spec](https://semver.org/spec/v2.0.0.html).
+- Publish the new release.
+- All artifacts should be published automatically shortly after the new release is published.
 
 ## Contributing
 

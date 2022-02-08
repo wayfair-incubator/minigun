@@ -2,7 +2,7 @@
 
 ## Diagram
 
-[![minigun metrics](docs/images/minigun-metrics.png)](docs/images/minigun-metrics.svg)
+[![minigun metrics](images/minigun-metrics.png)](images/minigun-metrics.svg)
 
 ## Metrics
 

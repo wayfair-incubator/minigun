@@ -6,7 +6,7 @@
 
 ## Metrics
 
-```
+```plain text
 METRIC                     EXPLANATION
 Full request duration      Full time of a request starting from the beginning (DNS lookup) and ending with receiving a full response.
 DNS request duration       The time spent on DNS lookup.

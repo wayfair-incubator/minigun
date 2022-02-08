@@ -17,6 +17,8 @@ HTTP time to first byte    The time since the request start and when the first b
 HTTP response duration     The time since request headers and body are sent and until the full response is received.
 ```
 
+You can get these details by running `minigun -report-help`.
+
 ## Explaining how across all concurrent requests works
 
 Here's an example of Minigun report and some explanations for the metrics it shows.

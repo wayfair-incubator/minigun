@@ -6,7 +6,7 @@
 
 ## Metrics
 
-```
+```plain text
 METRIC                     EXPLANATION
 Full request duration      Full time of a request starting from the beginning (DNS lookup) and ending with receiving a full response.
 DNS request duration       The time spent on DNS lookup.
@@ -16,6 +16,8 @@ HTTP write request body    The time required to write request body to the remote
 HTTP time to first byte    The time since the request start and when the first byte of HTTP reply from the remote endpoint is received. This time includes DNS lookup, establishing the TCP connection and SSL handshake if the request is made over https.
 HTTP response duration     The time since request headers and body are sent and until the full response is received.
 ```
+
+You can get these details by running `minigun -report-help`.
 
 ## Explaining how across all concurrent requests works
 

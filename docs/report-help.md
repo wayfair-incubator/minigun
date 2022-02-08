@@ -1,5 +1,24 @@
 # Report explained
 
+## Diagram
+
+[![minigun metrics](docs/images/minigun-metrics.png)](docs/images/minigun-metrics.svg)
+
+## Metrics
+
+```
+METRIC                     EXPLANATION
+Full request duration      Full time of a request starting from the beginning (DNS lookup) and ending with receiving a full response.
+DNS request duration       The time spent on DNS lookup.
+TCP connection duration    The time spent on establishing TCP connection using a TCP handshake.
+TLS handshake duration     The time spent on TLS handshake.
+HTTP write request body    The time required to write request body to the remote endpoint.
+HTTP time to first byte    The time since the request start and when the first byte of HTTP reply from the remote endpoint is received. This time includes DNS lookup, establishing the TCP connection and SSL handshake if the request is made over https.
+HTTP response duration     The time since request headers and body are sent and until the full response is received.
+```
+
+## Explaining how across all concurrent requests works
+
 Here's an example of Minigun report and some explanations for the metrics it shows.
 
 Command:

@@ -35,7 +35,7 @@ import (
 )
 
 // Constants and vars
-const version = "0.4.1"
+const version = "0.4.2"
 const workersCannelSize = 1024
 const errorBadHTTPCode = "Bad HTTP status code"
 
@@ -120,7 +120,7 @@ func (headers *httpHeaders) Set(value string) error {
 	var tmpHeaders httpHeaders
 
 	s := strings.Split(value, ":")
-	if len(s) != 2 {
+	if len(s) < 2 {
 		return fmt.Errorf("Wrong header argument")
 	}
 
@@ -130,7 +130,10 @@ func (headers *httpHeaders) Set(value string) error {
 		tmpHeaders = *headers
 	}
 
-	tmpHeaders[s[0]] = s[1]
+	tmpHeader := strings.TrimSpace(s[0])
+	tmpValue := strings.TrimSpace(strings.Join(s[1:], ":"))
+
+	tmpHeaders[tmpHeader] = tmpValue
 	*headers = tmpHeaders
 
 	return nil

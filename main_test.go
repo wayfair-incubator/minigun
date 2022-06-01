@@ -17,3 +17,29 @@ func TestRandomBytes(t *testing.T) {
 			len(result))
 	}
 }
+
+func TestHeadersParsing(t *testing.T) {
+	var sendHTTPHeaders httpHeaders
+
+	sendHTTPHeaders.Set("Host: hostname.local")
+	sendHTTPHeaders.Set("H1  : V1,V2  ")
+	sendHTTPHeaders.Set("Authorization: id:hash")
+	sendHTTPHeaders.Set("Keep-Alive: timeout=2, max=100")
+	sendHTTPHeaders.Set("Content-Type: application/xml")
+	sendHTTPHeaders.Set("Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8   ")
+
+	expected := httpHeaders{
+		"Authorization": "id:hash",
+		"H1":            "V1,V2",
+		"Host":          "hostname.local",
+		"Keep-Alive":    "timeout=2, max=100",
+		"Content-Type":  "application/xml",
+		"Accept":        "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+	}
+
+	for k, v := range expected {
+		if sendHTTPHeaders[k] != v {
+			t.Errorf("Expected header: %q => %q, got header:  %q => %q", k, v, k, sendHTTPHeaders[k])
+		}
+	}
+}

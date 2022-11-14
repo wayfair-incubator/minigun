@@ -36,7 +36,8 @@ import (
 
 // Constants and vars
 const version = "0.4.2"
-const workersCannelSize = 1024
+
+const workersCannelSize = 1
 const errorBadHTTPCode = "Bad HTTP status code"
 
 var applog *logger.Logger
@@ -49,7 +50,7 @@ var registry = prometheus.NewRegistry()
 // var secondsDurationBuckets = []float64{0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2.5, 5, 10}
 
 // Objectives for summary distributions
-var summaryObjectives = map[float64]float64{0.5: 0.05, 0.9: 0.01, 0.95: 0.005, 0.99: 0.001}
+var summaryObjectives = map[float64]float64{0.5: 0.05, 0.9: 0.01, 0.95: 0.005, 0.99: 0.001, 1.0: 0.0}
 
 // Config is the main app config struct
 type appConfig struct {
@@ -625,6 +626,7 @@ func main() {
 	flag.DurationVar(&config.fireDuration, "fire-duration", time.Second*10, "Duration of the benchmark. Specify 0 to run forever until stopped")
 	flag.IntVar(&config.fireRate, "fire-rate", 0, "Desired rate in requests/sec. Default is 0 - unlimited")
 
+	// TODO: Set dynamically based on config.sendTimeout * config.fireRate
 	flag.IntVar(&config.workers, "workers", 1, "The number of worker threads")
 	flag.BoolVar(&config.verbose, "verbose", false, "Print INFO level applog to stdout")
 	flag.BoolVar(&config.insecure, "insecure", false, "Ignore TLS certificate errors")

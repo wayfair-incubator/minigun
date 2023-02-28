@@ -35,7 +35,7 @@ import (
 )
 
 // Constants and vars
-const version = "0.4.2"
+const version = "0.4.3"
 const workersCannelSize = 1024
 const errorBadHTTPCode = "Bad HTTP status code"
 

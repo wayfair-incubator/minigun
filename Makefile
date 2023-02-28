@@ -33,6 +33,10 @@ local-build-wo-cgo: $(VENDOR_DIR) $(OUTPUT_DIR)
 clean:
 	rm -f output/*
 
+.PHONY: clean-all
+clean-all:
+	rm -rf output/* vendor
+
 .PHONY: test
 test: $(VENDOR_DIR)
 	go test -v -timeout 30s github.com/wayfair-incubator/minigun

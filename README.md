@@ -1,6 +1,6 @@
 # Minigun
 
-[![Minigun Version](https://img.shields.io/badge/Minigun-0.4.3-7f187f.svg)](https://github.com/wayfair-incubator/minigun/blob/main/CHANGELOG.md)
+[![Minigun Version](https://img.shields.io/badge/Minigun-0.5.0-7f187f.svg)](https://github.com/wayfair-incubator/minigun/blob/main/CHANGELOG.md)
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.0-4baaaa.svg)](CODE_OF_CONDUCT.md)
 
 ## About The Project

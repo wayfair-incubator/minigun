@@ -35,7 +35,7 @@ import (
 )
 
 // Constants and vars
-const version = "0.5.0"
+const version = "0.5.1"
 const workersCannelSize = 1024
 const errorBadHTTPCode = "Bad HTTP status code"
 
@@ -516,9 +516,7 @@ func worker(ctx context.Context, id int, config appConfig, comm chan message, st
 				}
 
 			} else {
-
 				config.metrics.requestsSendSuccess.WithLabelValues(config.metrics.labelValues...).Inc()
-
 			}
 		}
 	}

@@ -329,6 +329,8 @@ func initMetrics(config appConfig, labelNames, labelValues []string) appMetrics 
 	am.channelConfigLength.WithLabelValues(labelValues...).Set(float64(workersCannelSize))
 	am.channelLength.WithLabelValues(labelValues...).Set(float64(0))
 	am.channelFullEvents.WithLabelValues(labelValues...).Add(0)
+	am.requestsSendSuccess.WithLabelValues(labelValues...).Add(0)
+	am.requestsSendErrors.WithLabelValues(labelValues...).Add(0)
 
 	return am
 }

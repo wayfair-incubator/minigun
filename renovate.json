@@ -4,6 +4,7 @@
   "labels": [
     "renovate/{{depName}}"
   ],
+  "configMigration": true,
   "extends": [
     "config:base",
     ":dependencyDashboard",

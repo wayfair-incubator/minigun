@@ -4,8 +4,9 @@
   "labels": [
     "renovate/{{depName}}"
   ],
+  "configMigration": true,
   "extends": [
-    "config:base",
+    "config:recommended",
     ":dependencyDashboard",
     ":rebaseStalePrs",
     "schedule:earlyMondays"
@@ -15,12 +16,19 @@
   ],
   "packageRules": [
     {
-      "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
+      "matchUpdateTypes": [
+        "minor",
+        "patch",
+        "pin",
+        "digest"
+      ],
       "groupName": "Minor Updates",
       "automerge": true
     },
     {
-      "matchManagers": ["github-actions"],
+      "matchManagers": [
+        "github-actions"
+      ],
       "groupName": "GitHub Actions"
     }
   ]

@@ -33,6 +33,15 @@ type appMetrics struct {
 	channelLength       *prometheus.GaugeVec
 	channelConfigLength *prometheus.GaugeVec
 
+	// Histograms
+	histRequestsDuration         *prometheus.HistogramVec
+	histDNSDuration              *prometheus.HistogramVec
+	histConnectDuration          *prometheus.HistogramVec
+	histGotFirstByteDuration     *prometheus.HistogramVec
+	histTLSHandshakeDuration     *prometheus.HistogramVec
+	histWroteRequestBodyDuration *prometheus.HistogramVec
+	histResponseDuration         *prometheus.HistogramVec
+
 	// Summaries
 	summaryRequestsDuration         *prometheus.SummaryVec
 	summaryDNSDuration              *prometheus.SummaryVec
@@ -95,6 +104,17 @@ func initMetrics(config appConfig, labelNames, labelValues []string) appMetrics 
 		am.labelNames,
 	)
 
+	am.histRequestsDuration = promauto.With(registry).NewHistogramVec(
+		prometheus.HistogramOpts{
+			Namespace: "minigun",
+			Subsystem: "requests",
+			Name:      "hist_duration_seconds",
+			Help:      "Histogram distribution of request durations, in seconds",
+			Buckets:   secondsDurationBuckets,
+		},
+		am.labelNames,
+	)
+
 	am.summaryRequestsDuration = promauto.With(registry).NewSummaryVec(
 		prometheus.SummaryOpts{
 			Namespace:  "minigun",
@@ -107,6 +127,17 @@ func initMetrics(config appConfig, labelNames, labelValues []string) appMetrics 
 	)
 
 	// DNS metrics
+	am.histDNSDuration = promauto.With(registry).NewHistogramVec(
+		prometheus.HistogramOpts{
+			Namespace: "minigun",
+			Subsystem: "httptrace",
+			Name:      "hist_dns_duration_seconds",
+			Help:      "Histogram distribution of DNS durations, in seconds",
+			Buckets:   secondsDurationBuckets,
+		},
+		am.labelNames,
+	)
+
 	am.summaryDNSDuration = promauto.With(registry).NewSummaryVec(
 		prometheus.SummaryOpts{
 			Namespace:  "minigun",
@@ -119,6 +150,17 @@ func initMetrics(config appConfig, labelNames, labelValues []string) appMetrics 
 	)
 
 	// Connection metrics
+	am.histConnectDuration = promauto.With(registry).NewHistogramVec(
+		prometheus.HistogramOpts{
+			Namespace: "minigun",
+			Subsystem: "httptrace",
+			Name:      "hist_connect_duration_seconds",
+			Help:      "Histogram distribution of connection durations, in seconds",
+			Buckets:   secondsDurationBuckets,
+		},
+		am.labelNames,
+	)
+
 	am.summaryConnectDuration = promauto.With(registry).NewSummaryVec(
 		prometheus.SummaryOpts{
 			Namespace:  "minigun",
@@ -131,6 +173,17 @@ func initMetrics(config appConfig, labelNames, labelValues []string) appMetrics 
 	)
 
 	// Response first byte metrics
+	am.histGotFirstByteDuration = promauto.With(registry).NewHistogramVec(
+		prometheus.HistogramOpts{
+			Namespace: "minigun",
+			Subsystem: "httptrace",
+			Name:      "hist_time_to_first_byte_seconds",
+			Help:      "Histogram distribution of time to first byte durations, in seconds",
+			Buckets:   secondsDurationBuckets,
+		},
+		am.labelNames,
+	)
+
 	am.summaryGotFirstByteDuration = promauto.With(registry).NewSummaryVec(
 		prometheus.SummaryOpts{
 			Namespace:  "minigun",
@@ -143,6 +196,17 @@ func initMetrics(config appConfig, labelNames, labelValues []string) appMetrics 
 	)
 
 	// TLS handshake metrics
+	am.histTLSHandshakeDuration = promauto.With(registry).NewHistogramVec(
+		prometheus.HistogramOpts{
+			Namespace: "minigun",
+			Subsystem: "httptrace",
+			Name:      "hist_tls_handshake_duration_seconds",
+			Help:      "Histogram distribution of TLS Handshake durations, in seconds",
+			Buckets:   secondsDurationBuckets,
+		},
+		am.labelNames,
+	)
+
 	am.summaryTLSHandshakeDuration = promauto.With(registry).NewSummaryVec(
 		prometheus.SummaryOpts{
 			Namespace:  "minigun",
@@ -155,6 +219,17 @@ func initMetrics(config appConfig, labelNames, labelValues []string) appMetrics 
 	)
 
 	// Request body sent metrics
+	am.histWroteRequestBodyDuration = promauto.With(registry).NewHistogramVec(
+		prometheus.HistogramOpts{
+			Namespace: "minigun",
+			Subsystem: "httptrace",
+			Name:      "hist_write_request_body_duration_seconds",
+			Help:      "Histogram distribution of WroteRequestBody durations, in seconds",
+			Buckets:   secondsDurationBuckets,
+		},
+		am.labelNames,
+	)
+
 	am.summaryWroteRequestBodyDuration = promauto.With(registry).NewSummaryVec(
 		prometheus.SummaryOpts{
 			Namespace:  "minigun",
@@ -185,6 +260,17 @@ func initMetrics(config appConfig, labelNames, labelValues []string) appMetrics 
 			Help:      "The sum of response bytes",
 		},
 		am.labelNames,
+	)
+
+	am.histResponseDuration = promauto.With(registry).NewHistogramVec(
+		prometheus.HistogramOpts{
+			Namespace: "minigun",
+			Subsystem: "response",
+			Name:      "hist_duration_seconds",
+			Help:      "Histogram distribution of response durations, in seconds",
+			Buckets:   secondsDurationBuckets,
+		},
+		append(am.labelNames, "status"),
 	)
 
 	am.summaryResponseDuration = promauto.With(registry).NewSummaryVec(
@@ -243,6 +329,8 @@ func initMetrics(config appConfig, labelNames, labelValues []string) appMetrics 
 	am.channelConfigLength.WithLabelValues(labelValues...).Set(float64(workersCannelSize))
 	am.channelLength.WithLabelValues(labelValues...).Set(float64(0))
 	am.channelFullEvents.WithLabelValues(labelValues...).Add(0)
+	am.requestsSendSuccess.WithLabelValues(labelValues...).Add(0)
+	am.requestsSendErrors.WithLabelValues(labelValues...).Add(0)
 
 	return am
 }

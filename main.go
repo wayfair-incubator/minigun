@@ -13,7 +13,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"math/rand"
 	"net"
 	"net/http"
@@ -35,19 +35,16 @@ import (
 )
 
 // Constants and vars
-const version = "0.4.2"
-
-const workersCannelSize = 1
+const version = "0.5.1"
+const workersCannelSize = 1024
 const errorBadHTTPCode = "Bad HTTP status code"
 
 var applog *logger.Logger
 var workerStatuses []workerStatus
 var registry = prometheus.NewRegistry()
 
-// NOTES: histograms have been replaced with summaries. I'm keeping it just in case I decide
-// to use histograms again.
 // Let's use the same buckets for histograms as NGINX Ingress controller
-// var secondsDurationBuckets = []float64{0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2.5, 5, 10}
+var secondsDurationBuckets = []float64{0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2.5, 5, 10}
 
 // Objectives for summary distributions
 var summaryObjectives = map[float64]float64{0.5: 0.05, 0.9: 0.01, 0.95: 0.005, 0.99: 0.001, 1.0: 0.0}
@@ -298,6 +295,7 @@ func sendDataHTTP(data []byte, config appConfig, client *http.Client) error {
 	trace := &httptrace.ClientTrace{
 		DNSStart: func(dsi httptrace.DNSStartInfo) { dns = time.Now() },
 		DNSDone: func(ddi httptrace.DNSDoneInfo) {
+			config.metrics.histDNSDuration.WithLabelValues(config.metrics.labelValues...).Observe(time.Since(dns).Seconds())
 			config.metrics.summaryDNSDuration.WithLabelValues(config.metrics.labelValues...).Observe(time.Since(dns).Seconds())
 			applog.Infof("DNS Done: %v\n", time.Since(dns))
 			applog.Infof("DNS Result: %v\n", ddi.Addrs)
@@ -305,24 +303,28 @@ func sendDataHTTP(data []byte, config appConfig, client *http.Client) error {
 
 		TLSHandshakeStart: func() { tlsHandshake = time.Now() },
 		TLSHandshakeDone: func(cs tls.ConnectionState, err error) {
+			config.metrics.histTLSHandshakeDuration.WithLabelValues(config.metrics.labelValues...).Observe(time.Since(tlsHandshake).Seconds())
 			config.metrics.summaryTLSHandshakeDuration.WithLabelValues(config.metrics.labelValues...).Observe(time.Since(tlsHandshake).Seconds())
 			applog.Infof("TLS Handshake: %v\n", time.Since(tlsHandshake))
 		},
 
 		ConnectStart: func(network, addr string) { connect = time.Now() },
 		ConnectDone: func(network, addr string, err error) {
+			config.metrics.histConnectDuration.WithLabelValues(config.metrics.labelValues...).Observe(time.Since(connect).Seconds())
 			config.metrics.summaryConnectDuration.WithLabelValues(config.metrics.labelValues...).Observe(time.Since(connect).Seconds())
 			applog.Infof("Connect time: %v\n", time.Since(connect))
 		},
 
 		WroteHeaders: func() { headers = time.Now() },
 		WroteRequest: func(wri httptrace.WroteRequestInfo) {
+			config.metrics.histWroteRequestBodyDuration.WithLabelValues(config.metrics.labelValues...).Observe(time.Since(headers).Seconds())
 			config.metrics.summaryWroteRequestBodyDuration.WithLabelValues(config.metrics.labelValues...).Observe(time.Since(headers).Seconds())
 			wroteRequest = time.Now()
 			applog.Infof("Wrote request body time: %v\n", time.Since(headers))
 		},
 
 		GotFirstResponseByte: func() {
+			config.metrics.histGotFirstByteDuration.WithLabelValues(config.metrics.labelValues...).Observe(time.Since(start).Seconds())
 			config.metrics.summaryGotFirstByteDuration.WithLabelValues(config.metrics.labelValues...).Observe(time.Since(start).Seconds())
 			applog.Infof("Time from start to first byte: %v\n", time.Since(start))
 		},
@@ -336,6 +338,7 @@ func sendDataHTTP(data []byte, config appConfig, client *http.Client) error {
 		responseTime := time.Since(wroteRequest)
 		if err == nil && resp != nil {
 			localLabelValues := append(config.metrics.labelValues, fmt.Sprintf("%v", resp.StatusCode))
+			config.metrics.histResponseDuration.WithLabelValues(localLabelValues...).Observe(responseTime.Seconds())
 			config.metrics.summaryResponseDuration.WithLabelValues(localLabelValues...).Observe(responseTime.Seconds())
 		}
 	}
@@ -343,6 +346,7 @@ func sendDataHTTP(data []byte, config appConfig, client *http.Client) error {
 	totalTime := time.Since(start)
 
 	config.metrics.requestsSendBytesSum.WithLabelValues(config.metrics.labelValues...).Add(float64(len(config.sendPayload)))
+	config.metrics.histRequestsDuration.WithLabelValues(config.metrics.labelValues...).Observe(totalTime.Seconds())
 	config.metrics.summaryRequestsDuration.WithLabelValues(config.metrics.labelValues...).Observe(totalTime.Seconds())
 
 	applog.Infof("Total time: %v\n", totalTime)
@@ -358,7 +362,7 @@ func sendDataHTTP(data []byte, config appConfig, client *http.Client) error {
 
 	if resp.StatusCode >= 200 && resp.StatusCode <= 299 {
 
-		bodyBytes, err := ioutil.ReadAll(resp.Body)
+		bodyBytes, err := io.ReadAll(resp.Body)
 		if err != nil {
 			applog.Errorf("Failed to read response body from %q, error: %s", config.sendEndpoint, err.Error())
 			return err
@@ -512,9 +516,7 @@ func worker(ctx context.Context, id int, config appConfig, comm chan message, st
 				}
 
 			} else {
-
 				config.metrics.requestsSendSuccess.WithLabelValues(config.metrics.labelValues...).Inc()
-
 			}
 		}
 	}
@@ -678,7 +680,7 @@ func main() {
 	workerStatuses = make([]workerStatus, config.workers)
 
 	// Logger
-	applog = logger.Init("minigun", config.verbose, false, ioutil.Discard)
+	applog = logger.Init("minigun", config.verbose, false, io.Discard)
 
 	// Some checks
 	if config.sendEndpoint == "" {
@@ -699,7 +701,7 @@ func main() {
 	// Load file if requested
 	if config.sendFile != "" {
 		applog.Infof("Reading file %q", config.sendFile)
-		if data, err := ioutil.ReadFile(config.sendFile); err == nil {
+		if data, err := os.ReadFile(config.sendFile); err == nil {
 			config.sendPayload = data
 		} else {
 			applog.Fatalf("Error reading file %q: %s", config.sendFile, err.Error())

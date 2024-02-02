@@ -1,6 +1,6 @@
 # Minigun
 
-[![Minigun Version](https://img.shields.io/badge/Minigun-0.4.2-7f187f.svg)](https://github.com/wayfair-incubator/minigun/blob/main/CHANGELOG.md)
+[![Minigun Version](https://img.shields.io/badge/Minigun-0.5.1-7f187f.svg)](https://github.com/wayfair-incubator/minigun/blob/main/CHANGELOG.md)
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.0-4baaaa.svg)](CODE_OF_CONDUCT.md)
 
 ## About The Project
@@ -177,7 +177,7 @@ Or by checking the [following documentation page](./docs/report-help.md)
 This is an example of how to list things you need to use the software and how to install them.
 
 - Docker for image build.
-- Golang 1.17 for local binary build.
+- Golang 1.20 for local binary build.
 
 ### Building a Docker image
 

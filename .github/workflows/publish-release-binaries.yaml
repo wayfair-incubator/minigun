@@ -8,15 +8,15 @@ jobs:
   package:
     strategy:
       matrix:
-        go-version: [1.17]
+        go-version: ["1.20"]
         os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Set up Go
-        uses: actions/setup-go@v3
+        uses: actions/setup-go@v5
         with:
           go-version: ${{ matrix.go-version }}
 
@@ -27,13 +27,13 @@ jobs:
         run: ls output/*
 
       - name: Archive production artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: packages
           path: |
             output/*
 
-      - uses: AButler/upload-release-assets@v2.0
+      - uses: AButler/upload-release-assets@v3.0
         with:
           files: "output/*"
           repo-token: ${{ secrets.GITHUB_TOKEN }}

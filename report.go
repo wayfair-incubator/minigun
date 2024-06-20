@@ -20,6 +20,7 @@ type printRow []string
 // Main report structure
 type appReport struct {
 	Target          string  `json:"Target"`
+	SendMode        string  `json:"SendMode"`
 	SendMethod      string  `json:"SendMethod"`
 	DurationSeconds float64 `json:"DurationSeconds"`
 	MaxConcurrency  int     `json:"MaxConcurrency"`
@@ -86,6 +87,7 @@ func collectReport(config appConfig, duration float64) appReport {
 	}
 
 	report.Target = config.sendEndpoint
+	report.SendMode = config.sendMode
 	report.SendMethod = config.sendMethod
 	report.DurationSeconds = duration
 	report.MaxConcurrency = config.workers
@@ -249,6 +251,7 @@ func reportTextOld(config appConfig, duration float64) string {
 
 	// Main benchmark info
 	outMatrix = append(outMatrix, printRow{"Target:", config.sendEndpoint})
+	outMatrix = append(outMatrix, printRow{"Mode:", config.sendMode})
 	outMatrix = append(outMatrix, printRow{"Method:", config.sendMethod})
 	outMatrix = append(outMatrix, printRow{"Duration:", fmt.Sprintf("%.2f seconds", duration)})
 	outMatrix = append(outMatrix, printRow{"Max concurrency:", fmt.Sprintf("%v", config.workers)})

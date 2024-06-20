@@ -177,7 +177,7 @@ Or by checking the [following documentation page](./docs/report-help.md)
 This is an example of how to list things you need to use the software and how to install them.
 
 - Docker for image build.
-- Golang 1.20 for local binary build.
+- Golang 1.22 for local binary build.
 
 ### Building a Docker image
 

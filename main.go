@@ -26,6 +26,8 @@ import (
 	"syscall"
 	"time"
 
+	"golang.org/x/net/http2"
+
 	"github.com/dustin/go-humanize"
 	"github.com/google/logger"
 	"github.com/gorilla/mux"
@@ -35,7 +37,7 @@ import (
 )
 
 // Constants and vars
-const version = "0.5.1"
+const version = "0.5.2"
 const workersCannelSize = 1024
 const errorBadHTTPCode = "Bad HTTP status code"
 
@@ -231,10 +233,15 @@ func initClient(config appConfig) (senderClient, error) {
 
 	switch config.sendMode {
 
-	case "http", "HTTP":
+	case "http":
 		tr := &http.Transport{
 			DisableKeepAlives: config.sendDisableKeepAlives,
 			TLSClientConfig:   &tls.Config{InsecureSkipVerify: config.insecure}}
+		client.httpClient = &http.Client{Transport: tr, Timeout: config.sendTimeout}
+
+	case "http2":
+		tr := &http2.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: config.insecure}}
 		client.httpClient = &http.Client{Transport: tr, Timeout: config.sendTimeout}
 
 	case "socket":
@@ -255,7 +262,7 @@ func closeClient(config appConfig, client senderClient) error {
 	var err error
 
 	switch config.sendMode {
-	case "http", "HTTP":
+	case "http", "http2":
 		client.httpClient.CloseIdleConnections()
 	case "socket":
 		err = client.socketConn.Close()
@@ -393,7 +400,7 @@ func sendData(data []byte, config appConfig, client senderClient) error {
 
 	switch config.sendMode {
 
-	case "http", "HTTP":
+	case "http", "http2":
 		return sendDataHTTP(data, config, client.httpClient)
 
 	case "socket":
@@ -650,10 +657,15 @@ func main() {
 	flag.StringVar(&config.pushGateway, "push-gateway", "", "Prometheus Pushgateway URL")
 	flag.DurationVar(&config.pushInterval, "push-interval", time.Second*15, "Metrics push interval")
 
+	flag.StringVar(&config.sendMode, "send-mode", "http", "Send mode, supported options are http and http2")
+
 	flag.Parse()
 
-	// For now we support http only
-	config.sendMode = "http"
+	// For now we support http and http2 only
+	if config.sendMode != "http" && config.sendMode != "http2" {
+		fmt.Printf("Unsuported -send-mode=%q. Only 'http' and 'http2' are supported at the moment\n", config.sendMode)
+		os.Exit(1)
+	}
 
 	// Show and exit functions
 	if showVersion {

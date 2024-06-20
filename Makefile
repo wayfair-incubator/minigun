@@ -43,16 +43,28 @@ test: $(VENDOR_DIR)
 
 # Some Github targets
 
-.PHONY: build-ubuntu-latest
+.PHONY: build-ubuntu-latest-amd64
 build-ubuntu-latest: $(VENDOR_DIR) $(OUTPUT_DIR)
 	CGO_ENABLED=1 go build -a -ldflags '-extldflags "-static"' -o output/minigun .
-	cd output && tar czf minigun-linux64.tar.gz minigun
+	cd output && tar czf minigun-linux-amd64.tar.gz minigun
 	rm -f output/minigun
 
-.PHONY: build-macos-latest
+.PHONY: build-macos-latest-amd64
 build-macos-latest: $(VENDOR_DIR) $(OUTPUT_DIR)
 	CGO_ENABLED=1 go build -a -ldflags '-extldflags "-static"' -o output/minigun .
-	cd output && tar czf minigun-darwin64.tar.gz minigun
+	cd output && tar czf minigun-darwin-amd64.tar.gz minigun
+	rm -f output/minigun
+
+.PHONY: build-ubuntu-latest-arm64
+build-ubuntu-latest: $(VENDOR_DIR) $(OUTPUT_DIR)
+	GOARCH=arm64 CGO_ENABLED=1 go build -a -ldflags '-extldflags "-static"' -o output/minigun .
+	cd output && tar czf minigun-linux-arm64.tar.gz minigun
+	rm -f output/minigun
+
+.PHONY: build-macos-latest-arm64
+build-macos-latest: $(VENDOR_DIR) $(OUTPUT_DIR)
+	GOARCH=arm64 CGO_ENABLED=1 go build -a -ldflags '-extldflags "-static"' -o output/minigun .
+	cd output && tar czf minigun-darwin-arm64.tar.gz minigun
 	rm -f output/minigun
 
 .PHONY: build-windows-latest

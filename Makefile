@@ -61,4 +61,4 @@ build-macos-latest: $(VENDOR_DIR) $(OUTPUT_DIR)
 .PHONY: build-windows-latest
 build-windows-latest: $(VENDOR_DIR) $(OUTPUT_DIR)
 	CGO_ENABLED=1 go build -a -ldflags '-extldflags "-static"' -o output/minigun.exe .
-	cd output && tar czf minigun-win64.tar.gz minigun.exe && rm -f output/minigun.exe
+	cd output && tar czf minigun-win64.tar.gz minigun.exe && rm -f minigun.exe

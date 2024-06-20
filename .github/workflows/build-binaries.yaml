@@ -26,3 +26,6 @@ jobs:
 
       - name: List files
         run: file output/*
+
+      - name: Cleanup
+        run: rm -f output/*

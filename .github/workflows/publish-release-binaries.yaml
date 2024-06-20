@@ -40,3 +40,6 @@ jobs:
         with:
           files: "output/*"
           repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Cleanup
+        run: rm output/*

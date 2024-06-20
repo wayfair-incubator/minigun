@@ -46,23 +46,19 @@ test: $(VENDOR_DIR)
 .PHONY: build-ubuntu-latest
 build-ubuntu-latest: $(VENDOR_DIR) $(OUTPUT_DIR)
 	CGO_ENABLED=1 go build -a -ldflags '-extldflags "-static"' -o output/minigun .
-	tar czf output/minigun-linux-amd64.tar.gz output/minigun
-	rm -f output/minigun
+	cd output && file minigun && tar czf minigun-linux-amd64.tar.gz minigun && rm -f minigun
 	GOARCH=arm64 CGO_ENABLED=0 go build -a -ldflags '-extldflags "-static"' -o output/minigun .
-	tar czf output/minigun-linux-arm64.tar.gz output/minigun
-	rm -f output/minigun
+	cd output && file minigun && tar czf minigun-linux-arm64.tar.gz minigun && rm -f minigun
 
 .PHONY: build-macos-latest
 build-macos-latest: $(VENDOR_DIR) $(OUTPUT_DIR)
 	CGO_ENABLED=1 go build -a -ldflags '-extldflags "-static"' -o output/minigun .
-	tar czf output/minigun-darwin-amd64.tar.gz output/minigun
+	cd output && file minigun && tar czf minigun-darwin-amd64.tar.gz minigun && rm -f minigun
 	rm -f output/minigun
 	GOARCH=arm64 CGO_ENABLED=0 go build -a -ldflags '-extldflags "-static"' -o output/minigun .
-	tar czf output/minigun-darwin-arm64.tar.gz output/minigun
-	rm -f output/minigun
+	cd output && file minigun && tar czf minigun-darwin-arm64.tar.gz minigun && rm -f minigun
 
 .PHONY: build-windows-latest
 build-windows-latest: $(VENDOR_DIR) $(OUTPUT_DIR)
 	CGO_ENABLED=1 go build -a -ldflags '-extldflags "-static"' -o output/minigun.exe .
-	tar czf output/minigun-win64.tar.gz output/minigun.exe
-	rm -f output/minigun.exe
+	cd output && tar czf minigun-win64.tar.gz minigun.exe && rm -f minigun.exe

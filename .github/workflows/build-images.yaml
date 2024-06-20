@@ -1,6 +1,8 @@
 name: Build Docker images
 
-on: [pull_request]
+on:
+  pull_request_review:
+    types: [submitted]
 
 env:
   REGISTRY: ghcr.io
@@ -8,6 +10,8 @@ env:
 
 jobs:
   build-and-push-image:
+    # Build image only if PR is approved to avoid having too many random images
+    if: github.event.review.state == 'approved'
     runs-on: ubuntu-latest
     permissions:
       contents: read

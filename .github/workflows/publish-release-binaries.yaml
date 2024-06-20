@@ -42,4 +42,4 @@ jobs:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Cleanup
-        run: rm -f output/*
+        run: rm output/*

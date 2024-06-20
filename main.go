@@ -26,6 +26,8 @@ import (
 	"syscall"
 	"time"
 
+	"golang.org/x/net/http2"
+
 	"github.com/dustin/go-humanize"
 	"github.com/google/logger"
 	"github.com/gorilla/mux"
@@ -35,7 +37,7 @@ import (
 )
 
 // Constants and vars
-const version = "0.5.1"
+const version = "0.6.0"
 const workersCannelSize = 1024
 const errorBadHTTPCode = "Bad HTTP status code"
 
@@ -119,7 +121,7 @@ func (headers *httpHeaders) Set(value string) error {
 
 	s := strings.Split(value, ":")
 	if len(s) < 2 {
-		return fmt.Errorf("Wrong header argument")
+		return fmt.Errorf("wrong header argument")
 	}
 
 	if len(*headers) < 1 {
@@ -175,7 +177,7 @@ func health(w http.ResponseWriter, r *http.Request) {
 	healthy := true
 
 	for id, status := range workerStatuses {
-		if status.Running != true {
+		if !status.Running {
 			healthy = false
 			applog.V(8).Infof("Worker %v is not running", id)
 		}
@@ -231,10 +233,15 @@ func initClient(config appConfig) (senderClient, error) {
 
 	switch config.sendMode {
 
-	case "http", "HTTP":
+	case "http":
 		tr := &http.Transport{
 			DisableKeepAlives: config.sendDisableKeepAlives,
 			TLSClientConfig:   &tls.Config{InsecureSkipVerify: config.insecure}}
+		client.httpClient = &http.Client{Transport: tr, Timeout: config.sendTimeout}
+
+	case "http2":
+		tr := &http2.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: config.insecure}}
 		client.httpClient = &http.Client{Transport: tr, Timeout: config.sendTimeout}
 
 	case "socket":
@@ -244,7 +251,7 @@ func initClient(config appConfig) (senderClient, error) {
 		}
 
 	default:
-		err = fmt.Errorf("Unsupported sendMode")
+		err = fmt.Errorf("unsupported sendMode")
 	}
 
 	return client, err
@@ -255,12 +262,12 @@ func closeClient(config appConfig, client senderClient) error {
 	var err error
 
 	switch config.sendMode {
-	case "http", "HTTP":
+	case "http", "http2":
 		client.httpClient.CloseIdleConnections()
 	case "socket":
 		err = client.socketConn.Close()
 	default:
-		err = fmt.Errorf("Unsupported sendMode")
+		err = fmt.Errorf("unsupported sendMode")
 	}
 
 	return err
@@ -378,7 +385,7 @@ func sendDataHTTP(data []byte, config appConfig, client *http.Client) error {
 }
 
 // Send data via socket
-func sendDataSocket(data []byte, config appConfig, writer *bufio.Writer) error {
+func sendDataSocket(data []byte, writer *bufio.Writer) error {
 	number, err := writer.Write(data)
 	if err == nil {
 		err = writer.Flush()
@@ -393,14 +400,14 @@ func sendData(data []byte, config appConfig, client senderClient) error {
 
 	switch config.sendMode {
 
-	case "http", "HTTP":
+	case "http", "http2":
 		return sendDataHTTP(data, config, client.httpClient)
 
 	case "socket":
-		return sendDataSocket(data, config, client.socketWriter)
+		return sendDataSocket(data, client.socketWriter)
 
 	default:
-		return fmt.Errorf("Unsupported send mode: %s", config.sendMode)
+		return fmt.Errorf("unsupported send mode: %s", config.sendMode)
 	}
 }
 
@@ -596,11 +603,11 @@ func validateUrl(inURL string) error {
 	}
 
 	if u.Scheme == "" {
-		return fmt.Errorf("Can't find scheme in URL %q", inURL)
+		return fmt.Errorf("can't find scheme in URL %q", inURL)
 	}
 
 	if u.Host == "" {
-		return fmt.Errorf("Can't find host in URL %q", inURL)
+		return fmt.Errorf("can't find host in URL %q", inURL)
 	}
 
 	return nil
@@ -650,10 +657,15 @@ func main() {
 	flag.StringVar(&config.pushGateway, "push-gateway", "", "Prometheus Pushgateway URL")
 	flag.DurationVar(&config.pushInterval, "push-interval", time.Second*15, "Metrics push interval")
 
+	flag.StringVar(&config.sendMode, "send-mode", "http", "Send mode, supported options are http and http2")
+
 	flag.Parse()
 
-	// For now we support http only
-	config.sendMode = "http"
+	// For now we support http and http2 only
+	if config.sendMode != "http" && config.sendMode != "http2" {
+		fmt.Printf("Unsuported -send-mode=%q. Only 'http' and 'http2' are supported at the moment\n", config.sendMode)
+		os.Exit(1)
+	}
 
 	// Show and exit functions
 	if showVersion {

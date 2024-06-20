@@ -10,10 +10,8 @@ jobs:
       matrix:
         go-version: ["1.22"]
         os:
-          - ubuntu-latest-amd64
-          - ubuntu-latest-arm64
-          - macos-latest-amd64
-          - macos-latest-arm64
+          - ubuntu-latest
+          - macos-latest
           - windows-latest
     runs-on: ${{ matrix.os }}
 

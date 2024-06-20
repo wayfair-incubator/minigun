@@ -37,7 +37,7 @@ import (
 )
 
 // Constants and vars
-const version = "0.5.2"
+const version = "0.6.0"
 const workersCannelSize = 1024
 const errorBadHTTPCode = "Bad HTTP status code"
 
@@ -121,7 +121,7 @@ func (headers *httpHeaders) Set(value string) error {
 
 	s := strings.Split(value, ":")
 	if len(s) < 2 {
-		return fmt.Errorf("Wrong header argument")
+		return fmt.Errorf("wrong header argument")
 	}
 
 	if len(*headers) < 1 {
@@ -177,7 +177,7 @@ func health(w http.ResponseWriter, r *http.Request) {
 	healthy := true
 
 	for id, status := range workerStatuses {
-		if status.Running != true {
+		if !status.Running {
 			healthy = false
 			applog.V(8).Infof("Worker %v is not running", id)
 		}
@@ -251,7 +251,7 @@ func initClient(config appConfig) (senderClient, error) {
 		}
 
 	default:
-		err = fmt.Errorf("Unsupported sendMode")
+		err = fmt.Errorf("unsupported sendMode")
 	}
 
 	return client, err
@@ -267,7 +267,7 @@ func closeClient(config appConfig, client senderClient) error {
 	case "socket":
 		err = client.socketConn.Close()
 	default:
-		err = fmt.Errorf("Unsupported sendMode")
+		err = fmt.Errorf("unsupported sendMode")
 	}
 
 	return err
@@ -385,7 +385,7 @@ func sendDataHTTP(data []byte, config appConfig, client *http.Client) error {
 }
 
 // Send data via socket
-func sendDataSocket(data []byte, config appConfig, writer *bufio.Writer) error {
+func sendDataSocket(data []byte, writer *bufio.Writer) error {
 	number, err := writer.Write(data)
 	if err == nil {
 		err = writer.Flush()
@@ -404,10 +404,10 @@ func sendData(data []byte, config appConfig, client senderClient) error {
 		return sendDataHTTP(data, config, client.httpClient)
 
 	case "socket":
-		return sendDataSocket(data, config, client.socketWriter)
+		return sendDataSocket(data, client.socketWriter)
 
 	default:
-		return fmt.Errorf("Unsupported send mode: %s", config.sendMode)
+		return fmt.Errorf("unsupported send mode: %s", config.sendMode)
 	}
 }
 
@@ -603,11 +603,11 @@ func validateUrl(inURL string) error {
 	}
 
 	if u.Scheme == "" {
-		return fmt.Errorf("Can't find scheme in URL %q", inURL)
+		return fmt.Errorf("can't find scheme in URL %q", inURL)
 	}
 
 	if u.Host == "" {
-		return fmt.Errorf("Can't find host in URL %q", inURL)
+		return fmt.Errorf("can't find host in URL %q", inURL)
 	}
 
 	return nil

@@ -559,6 +559,9 @@ func humanizeDurationSeconds(seconds float64) string {
 	for n := duration / unit; n >= unit; n /= unit {
 		div *= unit
 		exp++
+		if exp >= len(units)-1 {
+			break
+		}
 	}
 
 	return fmt.Sprintf("%.2f%s",

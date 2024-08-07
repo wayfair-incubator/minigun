@@ -43,3 +43,20 @@ func TestHeadersParsing(t *testing.T) {
 		}
 	}
 }
+
+func TestHumanizeDurationSeconds(t *testing.T) {
+	requestTime := humanizeDurationSeconds(6000)
+	if requestTime != "6000.00s" {
+		t.Errorf("Wrong requestTime: %q", requestTime)
+	}
+
+	requestTime = humanizeDurationSeconds(0.05)
+	if requestTime != "50.00ms" {
+		t.Errorf("Wrong requestTime: %q", requestTime)
+	}
+
+	requestTime = humanizeDurationSeconds(99999999)
+	if requestTime != "99999999.00s" {
+		t.Errorf("Wrong requestTime: %q", requestTime)
+	}
+}

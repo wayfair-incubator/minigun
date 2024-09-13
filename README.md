@@ -150,6 +150,18 @@ Please note that you can add `-name YOUR_NAME_HERE` argument to set custom `name
 label value for metrics exported to Prometheus. This could be useful to separate your
 test metrics from others.
 
+## Understanding report
+
+[![minigun metrics](docs/images/minigun-metrics.png)](docs/images/minigun-metrics.svg)
+
+You can read detailed explanation of reported metrics by using CLI help:
+
+```sh
+minigun -report-help
+```
+
+Or by checking the [following documentation page](./docs/report-help.md)
+
 ### Grafana Dashboard
 
 Chart examples from [Minigun Grafana dashboard](grafana/Minigun.json):
@@ -159,16 +171,6 @@ Chart examples from [Minigun Grafana dashboard](grafana/Minigun.json):
 Please note that this dashboard was designed for a multi-cluster environment in which
 every cluster has a unique `cluster_name` label on every metric, which is implemented
 via Prometheus `global.external_labels` [config option](https://prometheus.io/docs/prometheus/latest/configuration/configuration/).
-
-## Understanding report
-
-You can read detailed explanation of reported metrics by using CLI help:
-
-```sh
-minigun -report-help
-```
-
-Or by checking the [following documentation page](./docs/report-help.md)
 
 ## Local Development
 

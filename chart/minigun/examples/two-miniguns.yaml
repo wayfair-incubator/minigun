@@ -1,0 +1,43 @@
+# Values example
+benchmarkDeployments:
+  # Defaults for all benchmark instances
+  defaults:
+    resources:
+      limits:
+        cpu: 4
+        memory: 1Gi
+
+    serviceMonitor:
+      enabled: true
+
+  # Define benchmark instances
+  instances:
+
+    test-google:    # unique name of the benchmark, will be used for k8s resource names
+      enabled: true # toggle to enable override via deeper merge
+      spec:         # the rest the of spec, same as in the `default` section above
+        replicas: 3
+        args:
+          fire-duration: 0 # infinite
+          fire-rate: 10    # per instance
+          send-method: GET
+          send-mode: http
+          send-timeout: 3s
+          workers: 16
+          disable-keep-alive: true
+          fire-target: https://www.google.com/
+
+    test-local-ip:  # unique name of the benchmark, will be used for k8s resource names
+      enabled: true # toggle to enable override via deeper merge
+      spec:         # the rest the of spec, same as in the `default` section above
+        args:
+          fire-duration: 0 # infinite
+          fire-rate: 10    # per instance
+          send-method: GET
+          send-mode: http
+          send-timeout: 1s
+          workers: 8
+          disable-keep-alive: true
+          fire-target: http://10.10.10.10/
+          http-header: "Host: my-site.cluster.local"
+

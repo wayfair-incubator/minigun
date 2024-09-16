@@ -1,0 +1,44 @@
+{{- $defaults := .Values.benchmarkDeployments.defaults }}
+{{- $app :=  include "minigun.fullname" . }}
+{{- $labels := include "minigun.labels" . }}
+{{- $selectorLabels := include "minigun.selectorLabels" . }}
+{{- range $name, $values := .Values.benchmarkDeployments.instances }}
+{{- if $values.enabled }}
+{{- $spec := deepCopy $defaults | merge $values.spec }}
+{{- if $spec.serviceMonitor.enabled }}
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ $app }}-{{ $name }}
+  {{- with $spec.serviceMonitor.annotations }}
+  annotations:
+    {{- . | toYaml | nindent 4}}
+  {{- end }}
+  labels:
+    {{- $labels | nindent 4 }}
+    benchmark: {{ $name }}
+    {{- with $spec.serviceMonitor.labels }}
+    {{- . | toYaml | nindent 4}}
+    {{- end }}
+spec:
+  endpoints:
+  - interval: {{ $spec.serviceMonitor.interval }}
+    metricRelabelings:
+    - action: keep
+      regex: "^minigun_.*"
+      sourceLabels:
+      - __name__
+    path: /metrics
+    port: http
+    relabelings:
+    scheme: http
+    scrapeTimeout: {{ $spec.serviceMonitor.scrapeTimeout }}
+  jobLabel: app.kubernetes.io/instance
+  selector:
+    matchLabels:
+      {{- $selectorLabels | nindent 6 }}
+      benchmark: {{ $name }}
+{{- end }}
+{{- end }}
+{{- end }}

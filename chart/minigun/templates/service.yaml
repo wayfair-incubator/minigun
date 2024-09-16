@@ -1,0 +1,36 @@
+{{- $defaults := .Values.benchmarkDeployments.defaults }}
+{{- $app :=  include "minigun.fullname" . }}
+{{- $labels := include "minigun.labels" . }}
+{{- $selectorLabels := include "minigun.selectorLabels" . }}
+{{- range $name, $values := .Values.benchmarkDeployments.instances }}
+{{- if $values.enabled }}
+{{- $spec := deepCopy $defaults | merge $values.spec }}
+{{- if or $spec.service.enabled $spec.serviceMonitor.enabled }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $app }}-{{ $name }}
+  {{- with $spec.service.annotations }}
+  annotations:
+    {{- . | toYaml | nindent 4}}
+  {{- end }}
+  labels:
+    {{- $labels | nindent 4 }}
+    benchmark: {{ $name }}
+    {{- with $spec.service.labels }}
+    {{- . | toYaml | nindent 4}}
+    {{- end }}
+spec:
+  type: {{ $spec.service.type }}
+  ports:
+    - port: {{ $spec.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- $selectorLabels | nindent 4 }}
+    benchmark: {{ $name }}
+{{- end }}
+{{- end }}
+{{- end }}

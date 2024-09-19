@@ -1,0 +1,1 @@
+Congratulations! You've deployed Minigun as {{ .Release.Name }} in {{ .Release.Namespace }} namespace.

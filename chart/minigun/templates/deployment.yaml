@@ -1,0 +1,89 @@
+{{- $defaults := .Values.benchmarkDeployments.defaults }}
+{{- $app :=  include "minigun.fullname" . }}
+{{- $labels := include "minigun.labels" . }}
+{{- $selectorLabels := include "minigun.selectorLabels" . }}
+{{- $saName := .Values.benchmarkDeployments.serviceAccount.name }}
+{{- range $name, $values := .Values.benchmarkDeployments.instances }}
+{{- if $values.enabled }}
+{{- $spec := deepCopy $defaults | merge $values.spec }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $app }}-{{ $name }}
+  labels:
+    {{- $labels | nindent 4 }}
+    benchmark: {{ $name }}
+spec:
+  replicas: {{ $spec.replicas }}
+  selector:
+    matchLabels:
+      {{- $selectorLabels | nindent 6 }}
+      benchmark: {{ $name }}
+  template:
+    metadata:
+      {{- with $spec.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- $labels | nindent 8 }}
+        {{- with $spec.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        benchmark: {{ $name }}
+    spec:
+     {{- with $spec.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ $saName }}
+      securityContext:
+        {{- toYaml $spec.podSecurityContext | nindent 8 }}
+      containers:
+        - name: minigun
+          args:
+            - --name={{ $name }}
+            {{- range $k, $v := $spec.args }}
+            {{- if eq $k "http-header" }}
+            - --{{ $k }}='{{ $v }}'
+            {{- else }}
+            - --{{ $k }}={{ $v }}
+            {{- end }}
+            {{- end }}
+          securityContext:
+            {{- toYaml $spec.securityContext | nindent 12 }}
+          image: "{{ $spec.image.repository }}:{{ $spec.image.tag }}"
+          imagePullPolicy: {{ $spec.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ $spec.service.port }}
+              protocol: TCP
+          livenessProbe:
+            {{- toYaml $spec.livenessProbe | nindent 12 }}
+          readinessProbe:
+            {{- toYaml $spec.readinessProbe | nindent 12 }}
+          resources:
+            {{- toYaml $spec.resources | nindent 12 }}
+          {{- with $spec.volumeMounts }}
+          volumeMounts:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+      {{- with $spec.volumes }}
+      volumes:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $spec.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $spec.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $spec.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}
+{{- end }}

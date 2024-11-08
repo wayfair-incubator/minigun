@@ -6,14 +6,14 @@
 # @authors Minigun Maintainers
 # @copyright 2020 Wayfair, LLC -- All rights reserved.
 
-FROM golang:1.22 as test
+FROM golang:1.22.9 AS test
 ENV GOPATH=/go
 ENV PATH="$PATH:$GOPATH/bin"
 WORKDIR /go/src/github.com/wayfair-incubator/minigun
 COPY . ./
 RUN make test
 
-FROM test as build
+FROM test AS build
 ENV GOPATH=/go
 ENV PATH="$PATH:$GOPATH/bin"
 WORKDIR /go/src/github.com/wayfair-incubator/minigun

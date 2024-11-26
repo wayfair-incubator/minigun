@@ -31,7 +31,6 @@ spec:
       - __name__
     path: /metrics
     port: http
-    relabelings:
     scheme: http
     scrapeTimeout: {{ $spec.serviceMonitor.scrapeTimeout }}
   jobLabel: app.kubernetes.io/instance

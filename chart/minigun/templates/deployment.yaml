@@ -33,7 +33,7 @@ spec:
         {{- end }}
         benchmark: {{ $name }}
     spec:
-     {{- with $spec.imagePullSecrets }}
+      {{- with $spec.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
@@ -43,12 +43,12 @@ spec:
       containers:
         - name: minigun
           args:
-            - --name={{ $name }}
+            - -name
+            - {{ $name | quote }}
             {{- range $k, $v := $spec.args }}
-            {{- if eq $k "http-header" }}
-            - --{{ $k }}='{{ $v }}'
-            {{- else }}
-            - --{{ $k }}={{ $v }}
+            - -{{ $k }}
+            {{- if ne (printf "%v" $v) "true" }}
+            - {{ $v | quote }}
             {{- end }}
             {{- end }}
           securityContext:

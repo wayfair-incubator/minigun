@@ -33,7 +33,7 @@ benchmarkDeployments:
       repository: ghcr.io/wayfair-incubator/minigun
       pullPolicy: IfNotPresent
       # Overrides the image tag whose default is the chart appVersion.
-      tag: "v0.6.0"
+      tag: "v0.6.1"
 
     imagePullSecrets: []
     nameOverride: ""

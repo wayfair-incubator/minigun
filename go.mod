@@ -1,6 +1,6 @@
 module github.com/wayfair-incubator/minigun
 
-go 1.22
+go 1.26
 
 require (
 	github.com/dustin/go-humanize v1.0.1

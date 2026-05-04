@@ -36,7 +36,7 @@ jobs:
           path: |
             output/*
 
-      - uses: AButler/upload-release-assets@v3.0
+      - uses: AButler/upload-release-assets@v4.0.0
         with:
           files: "output/*"
           repo-token: ${{ secrets.GITHUB_TOKEN }}
